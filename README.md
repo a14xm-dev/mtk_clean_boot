@@ -1,4 +1,5 @@
-# Suppressing Bootloader Warnings on Samsung Devices
+# Suppressing Bootloader Warnings on Samsung (Mediatek) Devices
+
 To preface, the following information pertains to and is performed on our Galaxy A14 5G
 The device runs the *MT6833* SoC, the Samsung *MT6833* family are the following devices:
 
