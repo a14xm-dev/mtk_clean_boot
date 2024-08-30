@@ -1,7 +1,19 @@
 # Suppressing Bootloader Warnings on Samsung Devices
+To preface, the following information pertains to and is performed on our Galaxy A14 5G
+The device runs the *MT6833* SoC, the Samsung *MT6833* family are the following devices:
 
+- Galaxy M13 5G
+- Galaxy A13 5G
+- Galaxy A22 5G
+- Galaxy F42 5G
+
+If you follow the steps below, I would *still* recommend verifying the location of the `up_param` partition. But overall, the [up_param](https://github.com/a14xm-dev/mtk_clean_boot/releases/tag/a14xm) will be safe to flash to those devices.
+
+---
 **Identify the Bootloader "Logo" Partition**
-   - Connect the device to your computer and open terminal or command prompt.
+-
+
+Connect the device to your computer and open terminal or command prompt.
 
 Enter an adb shell:
 
@@ -20,19 +32,19 @@ List the *block device* partitions
 ```shell-session
 $ a14xm:/ # ls -al /dev/block/by-name
 ```
-   - Look for the entry similar to `up_param -> /dev/block/sdxY`. This is the partition we're interested in
+Look for the entry similar to `up_param -> /dev/block/sdxY`. This is the partition we're interested in
 
 This is our entry:
 ![list-partitions](src/lspartition~2.png)
 
 **Backup the Original Partition**
-   - To copy out the original `up_param` partition, run:
+To copy out the original `up_param` partition, run:
      
 ![pullorigparam](src/copyoriginal.png)
      ```
      dd if=/dev/block/sdc40 of=/sdcard/up_param.img
      ```
-   - This will write a copy of the partition as a *tar* partition image named `up_param.img` in the root directory of our device Internal storage. **Backup this file** elsewhere if you mess with the image beyond repair.
+This will write a copy of the partition as a *tar* partition image named `up_param.img` in the root directory of our device Internal storage. **Backup this file** elsewhere if you mess with the image beyond repair.
 
 
 The location is arbitrary, but move the file to your system. I would create a subdirectory in *Downloads/*
@@ -43,7 +55,7 @@ mkdir -p ~/Downloads/up_param && mv up_param.img ~/Downloads/up_param
 
 
 **Decompress and Edit the Images**
-   - Decompress the `up_param.img` file to reveal a list of images 
+Decompress the `up_param.img` file to reveal a list of images 
 
 ![extractimg](src/extraction.png)
 
@@ -52,30 +64,29 @@ user@ubuntu:~/Downloads/up$ tar xvf up_param.img
 
 ```
 
-   - The archive contents are decompressed in the *up_param/* directory
+The archive contents are decompressed in the *up_param/* directory
 
 We want to edit the `booting_warning.jpg` and `svb_orange.jpg`
    - Use any image editor of your choice to modify these images. I used GIMP to fill `booting_warning.jpg` over the initial warning message 
    
 ![alt text](src/originalbootwarn.jpg)
 
-   - With GIMP *Fill Tool*: make sure to move the `tolerance` slider to maximum value. In order to completely fill the image black.
+With GIMP *Fill* Tool: make sure to move the `tolerance` slider to maximum value. In order to completely fill the image black.
    
-   - Since `svb_orange.jpg` is originally in 936x1800 aspect ratio, it doesn't match full screen resolution. 
+Since `svb_orange.jpg` is originally in 936x1800 aspect ratio, it doesn't match full screen resolution. 
 
 To fix the modified `svb_orange.jpg` from appearing "too small" upon boot, You can copy out the `logo.jpg` and rename and overwrite to `svb_orange.jpg`
 
 **Repack and Replace the Partition Image**
-   - After editing, repack the modified images into back into a *tar* archive 
+After editing, repack the modified images into back into a *tar* archive 
 
 ![repack](src/repack.png)
-
 
 ```bash
 user@ubuntu:~/Downloads/up_param$ tar -cvf up_param.tar *.jpg 
 
 ```
-   - Linux uses the `mv` command to rename, from `up_param.tar` to `up_param.img`
+Linux uses the `mv` command to rename, from `up_param.tar` to `up_param.img`
 
 ![rename](src/rename.png)
 
@@ -84,13 +95,13 @@ user@ubuntu:~/Downloads/up_param$ mv up_param.tar up_param.img
 
 ```
 
-   - Place the modified `up_param.img` back into the `/sdcard` directory on your device. Where we first copied out the original `up_param.img`
+Place the modified `up_param.img` back into the `/sdcard` directory on your device. Where we first copied out the original `up_param.img`
 
 ![alt text](src/modifiedparam.png)
 
 **Restore the Modified Image**
-- Enter back into an *root* adb shell
-   - Write the modified image back to the original partition
+Enter back into an *root* adb shell
+- Write the modified image back to the original partition
  
 ![final step](src/writebackmodified.png)
 
