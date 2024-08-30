@@ -44,6 +44,8 @@ To copy out the original `up_param` partition, run:
      ```
      dd if=/dev/block/sdc40 of=/sdcard/up_param.img
      ```
+     
+     
 This will write a copy of the partition as a *tar* partition image named `up_param.img` in the root directory of our device Internal storage. **Backup this file** elsewhere if you mess with the image beyond repair.
 
 
